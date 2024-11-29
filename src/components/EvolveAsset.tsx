@@ -45,7 +45,10 @@ const EvolveAsset = () => {
       setUploadProgress('Image uploaded! Evolving NFT...');
 
       // Evolve NFT
-      const response = await fetch('https://testnet.api.laosnetwork.io/graphql', {
+      const apiUrl = import.meta.env.VITE_DEFAULT_NETWORK === 'mainnet' 
+        ? 'https://api.laosnetwork.io/graphql' 
+        : 'https://testnet.api.laosnetwork.io/graphql';
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

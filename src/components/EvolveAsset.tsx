@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useIsLoggedIn } from '@dynamic-labs/sdk-react-core';
-import { uploadToIPFS } from '../services/ipfsService';
+import { evolveNFT as evolveNFTApi, uploadToIPFS as uploadToIPFSApi } from '../services/api';
 import { FiUpload } from 'react-icons/fi';
 
 interface EvolveResponse {
@@ -41,47 +41,20 @@ const EvolveAsset = () => {
       }
 
       // Upload image to IPFS
-      const imageUrl = await uploadToIPFS(selectedFile);
+      const imageUrl = await uploadToIPFSApi(selectedFile);
       setUploadProgress('Image uploaded! Evolving NFT...');
 
       // Evolve NFT
-      const apiUrl = import.meta.env.VITE_DEFAULT_NETWORK === 'mainnet' 
-        ? 'https://api.laosnetwork.io/graphql' 
-        : 'https://testnet.api.laosnetwork.io/graphql';
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': import.meta.env.VITE_API_KEY,
-        },
-        body: JSON.stringify({
-          query: `
-            mutation EvolveNFT {
-              evolve(
-                input: {
-                  chainId: "${chainId}"
-                  contractAddress: "${contractAddress.toLowerCase()}"
-                  tokenId: "${tokenId}"
-                  name: "${name}"
-                  description: "${description}"
-                  image: "${imageUrl}"
-                }
-              ) {
-                success
-                tx
-              }
-            }
-          `,
-        }),
-      });
+      const result = await evolveNFTApi(
+        chainId,
+        contractAddress,
+        tokenId,
+        name,
+        description,
+        imageUrl
+      );
 
-      const data = await response.json();
-      
-      if (data.errors) {
-        throw new Error(data.errors[0].message);
-      }
-
-      setEvolveResult(data.data.evolve);
+      setEvolveResult(result);
       setUploadProgress('');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to evolve NFT');

@@ -14,6 +14,7 @@ A complete React-based starter kit for building NFT applications on Laos Network
 - 🌉 Cross-chain Broadcasting
 - 🔄 NFT Evolution
 - 🎯 Testnet & Mainnet Support
+- 🔒 Secure Backend API Proxy
 
 ## Prerequisites 📋
 
@@ -44,24 +45,38 @@ Before you begin, you'll need to obtain the following API keys:
    cd Laos-Network-React-Starter-Kit-API-Version
    ```
 
-2. **Install dependencies**
+2. **Set up the backend**
    ```bash
+   cd backend
    npm install
-   ```
-
-3. **Configure environment variables**
-   ```bash
    cp .env.example .env
    ```
-   Update the `.env` file with your API keys:
+   Update the `backend/.env` file with your API keys:
    ```env
-   VITE_DYNAMIC_ENVIRONMENT_ID=your-dynamic-environment-id
-   VITE_DEFAULT_NETWORK=testnet  # or mainnet
-   VITE_API_KEY=your-laos-api-key
-   VITE_PINATA_JWT=your-pinata-jwt
+   PORT=5050
+   NETWORK=testnet
+   LAOS_API_KEY=your-laos-api-key
+   PINATA_JWT=your-pinata-jwt
    ```
 
-4. **Start the development server**
+3. **Start the backend server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Set up the frontend**
+   ```bash
+   cd ..  # Return to root directory
+   npm install
+   cp .env.example .env
+   ```
+   Update the `.env` file with your Dynamic environment ID:
+   ```env
+   VITE_DYNAMIC_ENVIRONMENT_ID=your-dynamic-environment-id
+   VITE_DEFAULT_NETWORK=testnet
+   ```
+
+5. **Start the frontend development server**
    ```bash
    npm run dev
    ```
@@ -105,6 +120,10 @@ The starter kit supports both Testnet and Mainnet:
 - Change NFT images and properties
 - Track evolution history
 
+## Security 🔒
+
+This starter kit includes a secure backend proxy that handles all API interactions. API keys are stored securely on the backend and are never exposed to the client.
+
 ## Tech Stack 👨‍💻
 
 The project is built with:
@@ -112,6 +131,7 @@ The project is built with:
 - Vite
 - Tailwind CSS
 - Dynamic Wallet SDK
+- Express.js Backend
 - Pinata IPFS
 - Laos Network API
 
@@ -125,8 +145,6 @@ For support and questions:
 - Join the [Laos Network Discord](https://discord.com/invite/HgnVEYfX2V)
 - Visit the [Documentation](https://docs.laosnetwork.io)
 - Follow on [Twitter](https://twitter.com/LaosNetwork)
-
-
 
 ---
 

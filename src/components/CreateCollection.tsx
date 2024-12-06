@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useIsLoggedIn } from '@dynamic-labs/sdk-react-core';
+import { createCollection as createCollectionApi } from '../services/api';
 
 interface CollectionResponse {
   batchMinterAddress: string;
@@ -26,46 +27,8 @@ const CreateCollection = () => {
     setError('');
 
     try {
-      const apiUrl = import.meta.env.VITE_DEFAULT_NETWORK === 'mainnet' 
-        ? 'https://api.laosnetwork.io/graphql' 
-        : 'https://testnet.api.laosnetwork.io/graphql';
-
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': import.meta.env.VITE_API_KEY,
-        },
-        body: JSON.stringify({
-          query: `
-            mutation CreateCollection {
-              createCollection(
-                input: {
-                  name: "${name}"
-                  symbol: "${symbol}"
-                  chainId: "${chainId}"
-                }
-              ) {
-                batchMinterAddress
-                chainId
-                contractAddress
-                laosAddress
-                name
-                success
-                symbol
-              }
-            }
-          `,
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (data.errors) {
-        throw new Error(data.errors[0].message);
-      }
-
-      setCollection(data.data.createCollection);
+      const result = await createCollectionApi(name, symbol, chainId);
+      setCollection(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create collection');
     } finally {

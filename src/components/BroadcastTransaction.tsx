@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useIsLoggedIn } from '@dynamic-labs/sdk-react-core';
+import { broadcastTransaction as broadcastTransactionApi } from '../services/api';
 
 interface BroadcastResponse {
   success: boolean;
@@ -15,45 +16,18 @@ const BroadcastTransaction = () => {
   const [error, setError] = useState('');
   const [broadcastResult, setBroadcastResult] = useState<BroadcastResponse | null>(null);
 
-  const apiUrl = import.meta.env.VITE_DEFAULT_NETWORK === 'mainnet' 
-    ? 'https://api.laosnetwork.io/graphql' 
-    : 'https://testnet.api.laosnetwork.io/graphql';
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
     try {
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': import.meta.env.VITE_API_KEY,
-        },
-        body: JSON.stringify({
-          query: `
-            mutation BroadCast {
-              broadcast(input: {
-                tokenId: "${tokenId}",
-                chainId: "${chainId}",
-                ownershipContractAddress: "${collectionAddress.toLowerCase()}"
-              }) {
-                success
-                tokenId
-              }
-            }
-          `,
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (data.errors) {
-        throw new Error(data.errors[0].message);
-      }
-
-      setBroadcastResult(data.data.broadcast);
+      const result = await broadcastTransactionApi(
+        tokenId,
+        chainId,
+        collectionAddress
+      );
+      setBroadcastResult(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to broadcast transaction');
     } finally {

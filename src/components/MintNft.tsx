@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useIsLoggedIn } from '@dynamic-labs/sdk-react-core';
-import { uploadToIPFS } from '../services/ipfsService';
+import { mintNFT as mintNFTApi, uploadToIPFS as uploadToIPFSApi } from '../services/api';
 import { FiUpload } from 'react-icons/fi';
 
 interface MintResponse {
@@ -41,51 +41,20 @@ const MintNft = () => {
       }
 
       // Upload image to IPFS
-      const imageUrl = await uploadToIPFS(selectedFile);
+      const imageUrl = await uploadToIPFSApi(selectedFile);
       setUploadProgress('Image uploaded! Minting NFT...');
 
       // Mint NFT
-      const apiUrl = import.meta.env.VITE_DEFAULT_NETWORK === 'mainnet' 
-        ? 'https://api.laosnetwork.io/graphql' 
-        : 'https://testnet.api.laosnetwork.io/graphql';
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': import.meta.env.VITE_API_KEY,
-        },
-        body: JSON.stringify({
-          query: `
-            mutation MintNFT {
-              mint(
-                input: {
-                  chainId: "${chainId}"
-                  contractAddress: "${contractAddress.toLowerCase()}"
-                  tokens: [
-                    {
-                      mintTo: ["${mintTo}"]
-                      name: "${name}"
-                      description: "${description}"
-                      image: "${imageUrl}"
-                    }
-                  ]
-                }
-              ) {
-                tokenIds
-                success
-              }
-            }
-          `,
-        }),
-      });
+      const result = await mintNFTApi(
+        chainId,
+        contractAddress,
+        [mintTo],
+        name,
+        description,
+        imageUrl
+      );
 
-      const data = await response.json();
-      
-      if (data.errors) {
-        throw new Error(data.errors[0].message);
-      }
-
-      setMintResult(data.data.mint);
+      setMintResult(result);
       setUploadProgress('');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to mint NFT');
